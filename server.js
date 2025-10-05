@@ -10,23 +10,18 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// DB connection pool (use .env or replace values directly)
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASS || 'YOUR_DB_PASSWORD', // <-- 替换这里或创建 .env
+  password: process.env.DB_PASS || 'YOUR_DB_PASSWORD',
   database: process.env.DB_NAME || 'charityevents_db',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
 });
 
-// Helper to query with Promise
 const db = pool.promise();
 
-/* API endpoints */
-
-// GET /api/categories  -> get categories for dropdowns
 app.get('/api/categories', async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM categories ORDER BY id');
@@ -36,7 +31,6 @@ app.get('/api/categories', async (req, res) => {
   }
 });
 
-// GET /api/events  -> all non-suspended events with category/org names and status
 app.get('/api/events', async (req, res) => {
   try {
     const sql = `
@@ -55,8 +49,6 @@ app.get('/api/events', async (req, res) => {
   }
 });
 
-// GET /api/search?date=YYYY-MM-DD&location=xxx&category=1
-// 返回匹配条件的 **全部字段**（符合你的要求：搜索到就显示活动的全部信息）
 app.get('/api/search', async (req, res) => {
   try {
     const { date, location, category } = req.query;
@@ -80,7 +72,6 @@ app.get('/api/search', async (req, res) => {
   }
 });
 
-// GET /api/events/:id  -> event full details
 app.get('/api/events/:id', async (req, res) => {
   try {
     const sql = `
