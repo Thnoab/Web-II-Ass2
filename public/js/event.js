@@ -28,6 +28,20 @@ async function load(){
     ? `${window.location.origin}${e.image_url}`
     : (e.image_url || 'https://via.placeholder.com/600x300?text=No+Image');
 
+  let regList = '';
+  if (e.registrations && e.registrations.length > 0) {
+    regList = `
+      <h3>Recent Registrations</h3>
+      <ul class="registrations">
+        ${e.registrations.map(r => `
+          <li>${escapeHtml(r.full_name)} — ${escapeHtml(r.email)} (${r.num_tickets} ticket${r.num_tickets>1?'s':''}) on ${r.registered_at.slice(0,10)}</li>
+        `).join('')}
+      </ul>
+    `;
+  } else {
+    regList = '<p>No registrations yet.</p>';
+  }
+
   out.innerHTML = `
     <div class="card detail">
       <img src="${imgSrc}" alt="Event Image" class="cover">
@@ -36,8 +50,15 @@ async function load(){
       <p><strong>Description:</strong> ${escapeHtml(e.description || e.short_description || '')}</p>
       <p><strong>Price:</strong> ${e.price==0 ? 'Free' : '$'+e.price}</p>
       <p><strong>Goal:</strong> $${e.goal} — <strong>Progress:</strong> $${e.progress}</p>
+      <button id="registerBtn">Register for this event</button>
+      ${regList}
     </div>
   `;
+
+  document.getElementById('registerBtn').addEventListener('click', () => {
+    window.location.href = `registration.html?event_id=${e.id}`;
+  });
 }
 
 load();
+
